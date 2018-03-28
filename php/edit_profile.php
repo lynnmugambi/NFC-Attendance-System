@@ -59,14 +59,14 @@ if ($uploadOk == 0) {
         if (isset($_POST['name'])) {
             $name = $_POST['name'];
             if (verify(NAME, $name) === false) {
-                $m->phpAlert("Invalid name format!", "../admin.php");
+                $m->phpAlert("Invalid name format!", "../lecturer.php");
                 exit();
             }
         }
         if (isset($_POST['phone'])) {
             $phone = $_POST['phone'];
             if (verify(PHONE, $phone) === false) {
-                $m->phpAlert("Invalid phone format!", "../admin.php");
+                $m->phpAlert("Invalid phone format!", "../lecturer.php");
                 exit();
             }
         }

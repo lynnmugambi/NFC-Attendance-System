@@ -27,7 +27,7 @@ function processLogin() {
                 console.log(r);
                 switch(r.error) {
                     case 'empty' :
-                        $('.alert span').html('Please fill all the credentials !');
+                        $('.alert span').html('Please fill in all the credentials!');
                         $('.alert').removeClass('hidden');
                         break;
                     case 'not_found' :

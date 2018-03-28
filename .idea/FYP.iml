@@ -4,16 +4,9 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="PHP" type="php">
-        <CLASSES>
-          <root url="file://C:/Windows/System32" />
-        </CLASSES>
-        <SOURCES>
-          <root url="file://C:/Windows/System32" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="highcharts" level="application" />
+    <orderEntry type="library" name="jquery-1.12.4" level="application" />
+    <orderEntry type="library" name="jquery.dataTables" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
 </module>

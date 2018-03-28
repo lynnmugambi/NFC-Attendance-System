@@ -24,84 +24,68 @@ include './php/main_class.php';
     <script src="js/bootstrap.min.js"></script>
     <script src="js/admin.js"></script>
 
-    <!--Angular JS-->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
-
 
     <script>$(document).ready(function () {
             if (!window.location.hash) {
                 window.location = window.location + '#loaded';
                 window.location.reload();
             } else {
-                //$('.selectpicker').selectpicker();
+
                 var appletTag;
                 var loop = 0;
 
-                hideApplet(); // replace applet with clickable image
+                hideApplet();
 
-                function hideApplet() {
-                    var appletbox = document.getElementById('connect');
+                function hideApplet(){
+                    var appletbox=document.getElementById('connect');
                     appletTag = appletbox.innerHTML;
 
-                    appletbox.innerHTML = '<button class="btn btn-primary">Connect to Reader</button>';
+                    appletbox.innerHTML='<button class="btn btn-primary">Connect to Reader</button>';
                 }
 
-                var ready = false;
 
-                $("#connect").click(function () {
+                $("#connect").click(function() {
                     showApplet();
-
 
                     function showApplet() {
                         var appletbox = document.getElementById('connect');
-                        appletbox.innerHTML = '<button class="btn btn-success">Connected!</button>';
+                        appletbox.innerHTML = appletTag ;
                         startRead(true);
                     }
 
-                    ready = true;
                 });
 
                 var timer;
-                var timer2;
-                var test = "testing"
 
                 function startRead(repeat) {
                     var uidfound = "not found"
-                    if (repeat === true && loop < 2) {
+                    if (repeat === true ) {
 
-                        if (ready === true) {
+                            timer = setTimeout(function () {
 
-                            var uid = document.getElementById("NFC_Applet");
-                            console.log("starting");
-                            uidfound = uid.getUID().getRV();
-                            var card = uidfound;
-                            console.log(card);
+                                var uid = document.getElementById("NFC_Applet");
+                                console.log("starting");
+                                uidfound = uid.getUID().getRV();
+                                var card = uidfound;
+                                console.log(card);
 
-                            loop = loop + 1;
-                            console.log(loop);
-                            console.log(ready);
+                                var cardNumber = document.getElementById('test');
+                                cardNumber.value = card;
 
-                        }
+                                startRead(false);
+                            }, 2000);
 
-                        timer = setTimeout(function () {
-                            console.log("next");
-                            startRead(true);
-                        }, 3000);
+
                     }
                     else {
                         clearTimeout(timer);
-                        clearTimeout(timer2);
                         console.log('stopped');
-                        ready = false;
-                        return;
                     }
                 }
 
 
                 $("#disconnect").click(function (e) {
-                    e.preventDefault();
-                    ready = false;
+                    //e.preventDefault();
                     startRead(false);
                 });
 
@@ -217,6 +201,7 @@ include './php/main_class.php';
                     </div></div>'
 
             ?>
+            <!--<input type="text" name="cardnumber" id="test" />-->
         </div>
     </div>
 
@@ -258,7 +243,37 @@ include './php/main_class.php';
             </tbody>
         </table>
     </div>
+    <button data-toggle="collapse" data-target="#demo" class="btn btn-primary ">Help Me!</button>
+    <div id="demo" class="collapse">
+        <h4 class="text-center text-primary"> Instructions </h4>
+        <p> To assign student card, please ensure NFC reader is connected before the card is tapped on the device. Thereafter, click on the connect button, then click the 'Assign Card' button.</p>
+        <p class="text-danger"><strong>Contact technical support immediately if you experience any issue with the site.</strong></p></div>
+
+    <div style="">
+        <div id="connect">
+            <object id="NFC_Applet"
+                    code="NFC.NFC_Applet.class"
+                    type="application/x-java-applet"
+                    archive="HelloApplet.jar" height="200" width="250"
+                    mayscript = "true" scriptable ="true"
+                    align="middle" codebase="http:\\localhost\fyp\applet\">
+                <param name="mayscript" value="true" />
+            </object>
+
+        </div>
+        <div id="disconnect">
+            <button class="btn btn-danger" id="disconnect"> Disconnect from Reader </button>
+        </div>
+
+        <!-- Show the card number -->
+
+    </div>
+
+    <script>
+
+    </script>
 </div>
+
 
 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby=""
      aria-hidden="true">
@@ -466,6 +481,7 @@ include './php/main_class.php';
                 $class = "";
                 $att = "";
                 $had = "";
+
                 if (isset($_SESSION['attend'])) {
                     $att = $_SESSION['attend'];
                 }
@@ -549,46 +565,16 @@ include './php/main_class.php';
                     <div class="form-group">
                         <label class="control-label col-sm-2">Student ID: </label>
                         <div class="col-sm-10 ok">
-                            <input class="form-control"  value="' . $id . '" name="Lec_ID" readonly>
+                            <input class="form-control"  value="' . $id . '" name="Stud_ID" readonly>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-sm-2"> Card ID: </label>
-                        <div class="col-sm-10 ok" ng-app="myApp" ng-controller="formCtrl">
-                            <input class="form-control" TYPE="text" ng-model="cardno"  name="Card_ID" id="card">
+                        <div class="col-sm-10 ok" >
+                            <input class="form-control" name="Card_ID" id="test">
+                           
                         </div>
                     </div>
-                   <script>
-                   var app = angular.module(\'myApp\', [\'ngRoute\']);
-
-                            app.controller(\'formCtrl\', function ($scope) {
-                                $scope.cardno = "John";
-                            });
-</script>
-                    
-       <div class="form-group">
-        <div style="display:inline-flex; margin-bottom: 30px;">
-                <div style="margin-left: 20px;" id="connect">
-                    <object id="NFC_Applet"
-                            code="NFC.NFC_Applet.class"
-                            type="application/x-java-applet"
-                            archive="HelloApplet.jar" height="200" width="250"
-                            mayscript = "true" scriptable ="true"
-                            align="middle" codebase="http:\\localhost\fyp\applet\">
-                        <param name="mayscript" value="true" />
-                    </object>
-
-                   <!-- <applet id="NFC_Applet" code="NFC.NFC_Applet" scriptable ="true" MAYSCRIPT="true" archive="HelloApplet.jar" codebase="http:\\localhost\fyp\applet\" width="250" height="270"></applet>!-->
-
-                </div>
-               <div id="disconnect" style="float:right; margin-left: 20px;" >
-                   <button class="btn btn-danger" id="disconnect"> Disconnect from Reader </button>
-                </div>
-            <!--<button class="btn btn-primary" id="connect"> Connect to Reader </button>
-            !-->
-        </div>
-          </div>
-                       
                         <button class="btn btn-primary" id="add_lec" name="assign">Save Changes</button>
                 </form>       
             </div>
@@ -602,53 +588,4 @@ include './php/main_class.php';
 </body>
 </html>
 
-<script>
-    /*
-    $.ajax({
-        url : 'php/attend.php',
-        type : 'post',
-        data : card,
-        dataType : 'json',
-        success : function(r) {
-            console.log(r);
-            switch(r.error) {
-                case 'empty' :
-                    $('.alert span').html('Please fill all the credentials !');
-                    $('.alert').removeClass('hidden');
-                    break;
-                case 'not_found' :
-                    $('.alert span').html('No such user found! Try signing up.');
-                    $('.alert').removeClass('hidden');
 
-                    break;
-                case 'none' :
-                    $('.alert span').html('Found!');
-                    $('.alert').removeClass('hidden');
-                    $('.alert').removeClass('alert-warning');
-                    $('.alert').removeClass('alert-danger');
-                    $('.alert').addClass('alert-success');
-                    var ddl = document.getElementById('selectpicker');
-                    var opts = ddl.options.length;
-                    for (var i=0; i<opts; i++){
-                        if (ddl.options[i].value == "2"){
-                            ddl.options[i].selected = true;
-                            break;
-                        }
-                    }
-                    break;
-            }
-        }
-    });
-    */
-
-    //$student = $m->isPresent($card);
-    // $m->debug_to_console("card:".$card)?>
-
-    //call PHP function//var studID = <?php //json_encode($student)?>;
-    //console.log(studID);
-    //get student ID from PHP function
-    //check for student ID in table -- loop
-    // get duration
-    //if time is less that 3/4 of duration then late-row-orange
-    //else then present -row-green
-</script>

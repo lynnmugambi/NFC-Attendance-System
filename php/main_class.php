@@ -155,7 +155,9 @@ class Main
         return $rows;
 
     }
-    public function getCtoC(){
+
+    public function getCtoC()
+    {
         $con = connectTo();
         $stmt = $con->prepare("SELECT *
                                          FROM Class_Course
@@ -371,7 +373,7 @@ class Main
     public function getStudents2($class_id)
     {
         $con = connectTo();
-        $stmt2 = $con->prepare( "Select Semester from Assigned_classes where ClassID = :class");
+        $stmt2 = $con->prepare("SELECT Semester FROM Assigned_classes WHERE ClassID = :class");
         $stmt2->bindValue(":class", $class_id);
         if (!$stmt2) {
             echo "\nPDO::errorInfo():\n";
@@ -379,14 +381,14 @@ class Main
         }
         $stmt2->execute();
         $sem2 = $stmt2->fetchAll();
-        $sem='';
-        foreach ($sem2 as $row){
+        $sem = '';
+        foreach ($sem2 as $row) {
             $sem = $row['Semester'];
         }
-        $this->debug_to_console("Semester for class: ".$sem);
+        $this->debug_to_console("Semester for class: " . $sem);
 
 
-        $stmtx = $con->prepare( "Select * from Class_Course where ClassID = :class");
+        $stmtx = $con->prepare("SELECT * FROM Class_Course WHERE ClassID = :class");
         $stmtx->bindValue(":class", $class_id);
         if (!$stmtx) {
             echo "\nPDO::errorInfo():\n";
@@ -394,10 +396,10 @@ class Main
         }
         $stmtx->execute();
         $rows = $stmtx->fetchAll();
-        $this->debug_to_console("courses assigned to this class:".count($rows));
+        $this->debug_to_console("courses assigned to this class:" . count($rows));
 
-        foreach ($rows as $row){
-            $stmt = $con->prepare("SELECT S.Name,S.StudentID
+        foreach ($rows as $row) {
+            $stmt = $con->prepare("SELECT S.Name,S.StudentID,S.NFC_uid
                                          FROM ((Student AS S
                                          INNER JOIN Class_Course AS C
                                          ON S.CourseID = C.CourseID)
@@ -415,10 +417,11 @@ class Main
             $stmt->execute();
             $rows2 = $stmt->fetchAll();
             $this->debug_to_console(count($rows2));
-            if(count($rows2)==0){
+            if (count($rows2) == 0) {
                 continue;
-            }else{
-            yield $rows2;}
+            } else {
+                yield $rows2;
+            }
         }
 
     }
@@ -483,6 +486,11 @@ class Main
 
     }
 
+    /**
+     * @param $tp
+     * @param $status
+     * @param $class_id
+     */
     public function save_attendance2($tp, $status, $class_id)
     {
         $stats = 0;
@@ -491,13 +499,13 @@ class Main
 
         $this->debug_to_console("exists");
 
-        if ($status == 1) {
+        if ($status == 1 || $status == "1") {
             $stats = 0;
         } elseif
-        ($status == 2) {
+        ($status == 2 || $status == "2") {
             $stats = 1;
         } elseif
-        ($status == 3) {
+        ($status == 3 || $status == "3") {
             $stats = 1 - (2 / 3);
         } else {
             $stats = 0.5;
@@ -549,6 +557,7 @@ class Main
             }
 
             $done = $stmtx->execute();
+
             if ($done == true) {
                 $this->debug_to_console("Records saved successfully!");
             } else {
@@ -610,12 +619,12 @@ class Main
 
     }
 
-    public function addClass($name, $hrs, $cid, $class)
+    public function addClass($name, $hrs, $class)
     {
         $con = connectTo();
-        $stmt = $con->prepare("INSERT INTO `Class`(className,totalClasses,totalHours,CourseID)
-                                                VALUES(:name,:class,:hrs,:cid)");
-        $stmt->bindValue(":cid", $cid);
+        $stmt = $con->prepare("INSERT INTO `Class`(className,totalClasses,totalHours)
+                                                VALUES(:name,:class,:hrs)");
+       // $stmt->bindValue(":cid", $cid);
         $stmt->bindValue(":name", $name);
         $stmt->bindValue(":class", $class);
         $stmt->bindValue(":hrs", $hrs);
@@ -817,10 +826,9 @@ class Main
             $num_tables->execute();
             $tables = $num_tables->fetchAll();
             $count_t = count($tables);
-            if($count_t == 0){
+            if ($count_t == 0) {
                 respond("error", "not_found");
-            }
-            else {
+            } else {
 
                 $stmt = $con->prepare("SELECT Classes_Had,Classes_Attended FROM `{$tname}` WHERE StudentID = :tp");
 
@@ -928,7 +936,8 @@ class Main
 
     }
 
-    public function updateAtt($lec,$class,$att){
+    public function updateAtt($lec, $class, $att)
+    {
         $con = connectTo();
         $tname = "ClassID_" . $class . "_attendance";
 
@@ -1021,27 +1030,47 @@ class Main
         return;
     }
 
-    public function isPresent($card){
+    public function assignCard($card, $stud)
+    {
         $con = connectTo();
-        $studid="";
-        $exists2 = $con->prepare("SELECT StudentID FROM `Student` WHERE `NFC_uid` = :card");
-        $exists2->bindValue(":card", $card);
+        if ($card == "N/A") {
+            $stmt = $con->prepare("UPDATE Student SET NFC_uid = :card WHERE `StudentID` = :stud");
+            $stmt->bindValue(":card", $card);
+            $stmt->bindValue(":stud", $stud);
+            if (!$stmt) {
+                echo "\nPDO::errorInfo():\n";
+                print_r($con->errorInfo());
+            }
+            $stmt->execute();
+            respond("error", "none");
+        } else { //the card uid is not N/A
+            $stmta = $con->prepare("SELECT NFC_uid FROM `Student` WHERE `NFC_uid` = :card");
+            $stmta->bindValue(":card", $card);
+            if (!$stmta) {
+                echo "\nPDO::errorInfo():\n";
+                print_r($con->errorInfo());
+            }
+            $stmta->execute();
+            $rows2 = $stmta->fetchAll();
 
-        if (!$exists2) {
-            echo "\nPDO::errorInfo():\n";
-            print_r($con->errorInfo());
+            if (count($rows2) == 0) { //card is not assigned
+                $stmtx = $con->prepare("UPDATE Student SET NFC_uid = :card WHERE `StudentID` = :stud");
+                $stmtx->bindValue(":card", $card);
+                $stmtx->bindValue(":stud", $stud);
+                if (!$stmtx) {
+                    echo "\nPDO::errorInfo():\n";
+                    print_r($con->errorInfo());
+                }
+                $stmtx->execute();
+                respond("error", "none");
+            } else {//card is assigned
+                die(json_encode(array("error" => "found")));
+            }
+
         }
-
-        $exists2->execute();
-        $rows = $exists2->fetchAll();
-        //$this->debug_to_console("students with this ID:".count($rows));
-
-        foreach ($rows as $row){
-            $studid = $row['StudentID'];
-        }
-        return $studid;
-
     }
+
+    //}
 
 }
 

@@ -2,8 +2,9 @@
 if (!isset($_SESSION)) {
     session_start();
 }
+include "main_class.php";
+include_once "defines.php";
 
-require_once "main_class.php";
 $m = new Main();
 
 
@@ -125,24 +126,14 @@ if (isset($_POST['add_stud'])) {
 
 if (isset($_POST['add_class'])) {
 
-    if (empty($_POST['name']) || empty($_POST['cid']) ||
-        empty($_POST['classes']) || empty ($_POST['hrs'])) {
+    if (empty($_POST['name'])|| empty($_POST['classes']) || empty ($_POST['hrs'])) {
         $m->phpAlert("One of the fields is empty! Please fill in accordingly!", "../class_tools.php");
     } else {
-        $cid = "";
+        //$cid = "";
         $name = "";
         $hrs = "";
         $class = "";
 
-
-        if (isset($_POST['cid'])) {
-            $cid = $_POST['cid'];
-            $m->debug_to_console($cid);
-            if (verify(NUMBER, $cid) === false) {
-                $m->phpAlert("Invalid format at Course ID field!", "../class_tools.php");
-                exit();
-            }
-        }
 
         if (isset($_POST['name'])) {
             $name = $_POST['name'];
@@ -171,7 +162,7 @@ if (isset($_POST['add_class'])) {
             }
         }
 
-        $m->addClass($name, $hrs, $cid, $class);
+        $m->addClass($name, $hrs, $class);
     }
 }
 

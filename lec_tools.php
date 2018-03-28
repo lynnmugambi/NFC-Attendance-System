@@ -404,7 +404,7 @@ $i = new Main();
                     }
                     //$m->debug_to_console("class:" . $class);
                     $rows = $m->searchClass2($class, $_SESSION['id']);
-                    $m->debug_to_console(count($rows));
+                    //$m->debug_to_console(count($rows));
                     foreach ($rows as $row) {
 
                         echo '
@@ -422,7 +422,7 @@ $i = new Main();
                     <div class="form-group">
                         <label class="control-label col-sm-2"> Class ID: </label>
                         <div class="col-sm-10 ok">
-                            <input class="form-control"  value="' .$row['ClassID'] . '" name="Class_ID" readonly>
+                            <input class="form-control"  value="' .$class . '" name="Class_ID" readonly>
                         </div>
                     </div>
                         <div class="form-group">

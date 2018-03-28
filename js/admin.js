@@ -8,6 +8,7 @@ $(document).ready(function () {
     validateAttend()
     validateAssign2()
     changeAtt()
+    assignCard()
 });
 
 function searchClass() {
@@ -364,6 +365,62 @@ function validateAssign2(){
                         setTimeout(function () {
                             $('.bc-example-modal-lg').modal('hide');
                             window.location="";
+                        }, 1000);
+                        break;
+                }
+            }
+        });
+        return false
+    });
+
+}
+function assignCard(){
+    $("#cardassign").submit(function () {
+        var data = {};
+        var isEmpty = 0;
+        $("#cardassign input").each(function (k, v) {
+            if (!$(v).val().length) {
+                $('.alert span').html('Please enter <strong>' + $(v).attr('name') + '</strong> !');
+                $('.alert').removeClass('alert-danger');
+                $('.alert').removeClass('alert-success');
+                $('.alert').addClass('alert-warning');
+                $('.alert').removeClass('hidden');
+                isEmpty++;
+                return false;
+            }
+            data[$(v).attr('name')] = $(v).val();
+        });
+        $.ajax({
+            url: 'php/assign_card.php',
+            type: 'post',
+            data: data,
+            dataType: 'json',
+            success: function (r) {
+                console.log(r);
+                switch (r.error) {
+                    case 'empty' :
+                        $('.alert span').html('Please fill in the card number by tapping on the NFC reader!');
+                        $('.alert').removeClass('alert-warning');
+                        $('.alert').removeClass('alert-success');
+                        $('.alert').addClass('alert-danger');
+                        $('.alert').removeClass('hidden');
+                        break;
+                    case 'found' :
+                        $('.alert span').html('The NFC uid is already in use by another student. Please try another card.');
+                        $('.alert').removeClass('alert-danger');
+                        $('.alert').removeClass('alert-success');
+                        $('.alert').addClass('alert-warning');
+                        $('.alert').removeClass('hidden');
+                        break;
+                    case 'none' :
+                        $('.alert span').html('<img src="img/loading.gif"> <Strong>Success</strong>, record saved. ');
+                        $('.alert').removeClass('hidden');
+                        $('.alert').removeClass('alert-warning');
+                        $('.alert').removeClass('alert-danger');
+                        $('.alert').addClass('alert-success');
+                        setTimeout(function () {
+                            $('.bf-example-modal-lg').modal('hide');
+                            window.location="/fyp/stud_tools.php";
                         }, 1000);
                         break;
                 }

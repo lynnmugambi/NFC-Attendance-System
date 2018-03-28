@@ -79,52 +79,48 @@ $_SESSION['duration'] = $duration;
     <title>Take Attendance</title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap.theme.min.css">
-    <link rel="stylesheet" href="css/bootstrap-select.css">
-    <link rel="stylesheet" href="css/bootstrap-datetimepicker.css">
     <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap-datetimepicker.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/bootstrap-select.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     <script src="js/lecturer.js"></script>
-    <script>$(document).ready(function(e) {
-            $('.selectpicker').selectpicker();
+
+    <script>$(document).ready(function (e) {
 
             var appletTag;
             var loop = 0;
 
             hideApplet(); // replace applet with clickable image
 
-            function hideApplet(){
-                var appletbox=document.getElementById('connect');
+            function hideApplet() {
+                var appletbox = document.getElementById('connect');
                 appletTag = appletbox.innerHTML;
 
-                appletbox.innerHTML='<button class="btn btn-primary">Connect to Reader</button>';
+                appletbox.innerHTML = '<button class="btn btn-primary">Connect to Reader</button>';
             }
 
             var ready = false;
+            var timer;
 
-            $("#connect").click(function() {
+            $("#connect").click(function () {
                 showApplet();
 
-                function showApplet() {
+                function showApplet() { //show applet iframe
                     var appletbox = document.getElementById('connect');
-                    appletbox.innerHTML = appletTag ;
-                    startRead(true);
+                    appletbox.innerHTML = appletTag;
+                    timer = setTimeout(function () {
+                        startRead(true);
+                    }, 2000);
                 }
 
                 ready = true;
             });
 
-            var timer;
-            var timer2;
-            var test = "testing"
 
             function startRead(repeat) {
                 var uidfound = "not found"
-                if (repeat === true && loop < 2 ) {
+                if (repeat === true && loop < 2) {
 
                     if (ready === true) {
 
@@ -134,74 +130,76 @@ $_SESSION['duration'] = $duration;
                         var card = uidfound;
                         console.log(card);
 
-                        //Loading the info on the page using Ajax
-                        $.ajax({
-                            url : 'php/attend.php',
-                            type : 'post',
-                            data : card,
-                            dataType : 'json',
-                            success : function(r) {
-                                console.log(r);
-                                switch(r.error) {
-                                    case 'empty' :
-                                        $('.alert span').html('Please fill all the credentials !');
-                                        $('.alert').removeClass('hidden');
-                                        break;
-                                    case 'not_found' :
-                                        $('.alert span').html('No such user found! Try signing up.');
-                                        $('.alert').removeClass('hidden');
+                        var cardNumber = document.getElementById('myInput');
+                        cardNumber.value = card ;
 
-                                        break;
-                                    case 'none' :
-                                        $('.alert span').html('Found!');
-                                        $('.alert').removeClass('hidden');
-                                        $('.alert').removeClass('alert-warning');
-                                        $('.alert').removeClass('alert-danger');
-                                        $('.alert').addClass('alert-success');
+                        var input, filter, table, tr, td, i;
+                        input = document.getElementById("myInput");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
 
+                        // Loop through all table rows, and hide those who don't match the search query
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByTagName("td")[2];
+                            if (td) {
+                                if (td.innerHTML.toUpperCase().indexOf(card)+ " " > -1) {
+                                    tr[i].style.display = "";
+
+                                    var row = td.parentNode;
+                                    var combo = row.getElementsByTagName('select');
+                                    $(row).attr('class', 'table-success');
+                                    $(combo).val('');
+                                    $(combo).val("2");
+                                     }
+                                } else {
+                                    tr[i].style.display = "none";
                                 }
                             }
-                        });
+
 
                         loop = loop + 1;
                         console.log(loop);
                         console.log(ready);
-
                     }
-
                     timer = setTimeout(function () {
                         console.log("next");
                         startRead(true);
-                        }, 3000);
-                    }
+
+                    }, 3000);
+                }
+
                 else {
                     clearTimeout(timer);
-                    clearTimeout(timer2);
                     console.log('stopped');
                     ready = false;
-                    return;
                 }
             }
 
 
-            $("#disconnect").click(function(e) {
+            $("#disconnect").click(function (e) {
                 e.preventDefault();
                 ready = false;
                 startRead(false);
             });
         });
-        $(document).ready(function() {
-            var formmodified=1;
+
+        $(document).ready(function () {
+            var formmodified = 1;
             window.onbeforeunload = confirmExit;
+
             function confirmExit() {
                 if (formmodified === 1) {
                     return "New information not saved. Do you wish to leave the page?";
                 }
             }
-            $("button[name='submit']").click(function() {
+
+            $("button[name='submit']").click(function () {
                 formmodified = 0;
             });
+            
         });
+
 
     </script>
     <script type="text/javascript">
@@ -244,33 +242,30 @@ $_SESSION['duration'] = $duration;
         <div class="main-header">
             <?php
             echo '<h1>Welcome , ' . $_SESSION['username'] . '</h1>';
-            echo '<div class="make"><strong>Today\'s Date</strong> : <span>'.date("d-m-Y").'</span></div>
+            echo '<div class="make"><strong>Today\'s Date</strong> : <span>' . date("d-m-Y") . '</span></div>
             <br>
             	 ';
 
             echo ' <button data-toggle="collapse" data-target="#demo" class="btn btn-primary ">Help Me!</button> 
                <div id="demo" class="collapse">
                <h4 class="text-center text-primary"> Instructions </h4>
-          <p> Ensure Student card is tapped once on entry and once on exit to take attendance. You may also change the attendance manually if needed.</p>
+          <p> To take attendance, please ensure NFC reader is connected before student taps on the device. Thereafter, click on the connect button. You may also change the attendance manually if needed.</p>
           <p class="text-danger"><strong>Contact technical support immediately if you experience any issue with the site.</strong></p></div>
            ';
 
             ?>
-            <div class="alert alert-warning hidden">
-                <span></span>
-                <button type="button" class="close" onclick="$('.alert').addClass('hidden');">&times;</button>
-            </div>
+
         </div>
-        <div class="left-header" style="width: 60%;display: inline-block">
-        <div class="class-info">
-            <?php $today = date("m/d/Y");
-            echo '
+        <div class="left-header" style="width: 60%;display: inline-block;">
+            <div class="class-info">
+                <?php $today = date("m/d/Y");
+                echo '
             <div><strong>Start Time</strong> : <span >' . $start . '</span></div> 
             <div><strong>End Time</strong> : <span >' . $end . '</span></div> 
-            <div><strong>Duration</strong> : <span >' . $duration . 'hr(s)</span></div> 
-            <div><strong>Time Remaining</strong> : <span><script language="JavaScript">
-                                                        var endtime = '.json_encode($end).';
-                                                        var today = '.json_encode($today).';
+            <div><strong>Duration</strong> : <span >' . $duration . ' hr(s)</span></div> 
+            <div id="time"><strong>Time Remaining</strong> : <span><script language="JavaScript">
+                                                        var endtime = ' . json_encode($end) . ';
+                                                        var today = ' . json_encode($today) . ';
                                                         var stop = today + " " + endtime;
                                                         console.log(stop);
                                                         TargetDate = stop;
@@ -282,89 +277,78 @@ $_SESSION['duration'] = $duration;
 </script>
 <script language="JavaScript" src="js/countdown.js"></script></span></div>'; ?>
 
-        </div>
-        <div style="">
-                <div id="connect">
+            </div>
+            <div >
+                <div id="connect" style="margin: 5px;">
                     <object id="NFC_Applet"
                             code="NFC.NFC_Applet.class"
                             type="application/x-java-applet"
                             archive="HelloApplet.jar" height="200" width="250"
-                            mayscript = "true" scriptable ="true"
+                            mayscript="true" scriptable="true"
                             align="middle" codebase="http:\\localhost\fyp\applet\">
-                        <param name="mayscript" value="true" />
+                        <param name="mayscript" value="true"/>
                     </object>
 
-                   <!-- <applet id="NFC_Applet" code="NFC.NFC_Applet" scriptable ="true" MAYSCRIPT="true" archive="HelloApplet.jar" codebase="http:\\localhost\fyp\applet\" width="250" height="270"></applet>!-->
+                </div>
+                <div id="disconnect"  style="margin-left: 5px;" >
+                    <button class="btn btn-danger" id="disconnect"> Disconnect from Reader</button>
+                </div>
 
-                </div>
-               <div id="disconnect">
-                   <button class="btn btn-danger" id="disconnect"> Disconnect from Reader </button>
-                </div>
-            <!--<button class="btn btn-primary" id="connect"> Connect to Reader </button>
-            !-->
-        </div>
+            </div>
         </div>
     </div>
     <div class="panel-footer Studenttable">
         <form action="php/save_attendance.php" method="post">
-        <table class="table table-bordered table-hover">
-            <thead>
-            <tr>
-                <th>Student Name</th>
-                <th>Student No.</th>
-                <th>Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            $rows = $m->getStudents2($class_id);
-            foreach ($rows as $key => $row) {
-                $i = 0;
-                echo '<tr>
+            <input type="text" id="myInput" placeholder="Search for NFC ID..">
+            <table class="table table-bordered table-striped" id="example" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+
+                    <th>Student Name</th>
+                    <th>Student No.</th>
+                    <th>NFC ID</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                $rows = $m->getStudents2($class_id);
+                foreach ($rows as $key => $row) {
+                    $i = 0;
+                    echo '<tr class="table-danger">
+        
         <td >' . $row[$i]['Name'] . '</td>
         <td >' . $row[$i]['StudentID'] . '</td>
-        <input type="hidden" name = "TPNo[]" value="'.$row[$i]['StudentID'].'">
+        <td> ' . $row[$i]['NFC_uid'] . '</td>
+        <input type="hidden" name = "TPNo[]" value="' . $row[$i]['StudentID'] . '">
+        
         <td ><div>
-            <select class="selectpicker" name="status[]" id="selectpicker">
-                <option value=1 selected ="selected">Absent</option>
-                <option value=2>Present</option>
-                <option value=3>Late</option>
-                <option value=4>Absent with Reason</option>
+            <select name="status[]" id="combobox">
+                <option id = "absent" value= "1" selected >Absent</option>
+                <option id = "present" value="2">Present</option>
+                <option id = "late" value="3">Late</option>
+                <option id = "reason" value="4">Absent with Reason</option>
             </select>
             </div>
         </td>
-        </tr> '; $i++;
-            }
-            ?>
-            </tbody>
-        </table>
-        <button id="submit" name = "submit" class="btn btn-success">Save Records</button> <br>
+        </tr> ';
+                    $i++;
+                }
+                ?>
+                </tbody>
+            </table>
+            <button id="submit" name="submit" class="btn btn-success">Save Records</button>
+            <br>
         </form>
+        <script>
+
+
+        </script>
     </div>
 
 
 </div>
 </body>
 </html>
-<!--<form class="form-horizontal"  role="form">
-<div class="form-group">
-    <label for="dtp_input2" class="col-md-2 control-label">Date :</label>
-    <div class="input-group date form_date col-md-5" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
-        <input class="form-control" size="16" type="text" value="" readonly>
-        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-    </div>
-    <input type="hidden" id="dtp_input2" value="" /><br/>
-</div>
-<script type="text/javascript">
-    $('.form_date').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-        autoclose: 1,
-        todayHighlight: 1,
-        startView: 2,
-        minView: 2,
-        forceParse: 0
-    });</script> </form> --!>
 
 

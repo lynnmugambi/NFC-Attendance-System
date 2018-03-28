@@ -272,12 +272,6 @@ include './php/main_class.php';
                             <input class="form-control"  name="hrs">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2"> Course ID: </label>
-                        <div class="col-sm-10 ok">
-                            <input class="form-control"  name="cid">
-                        </div>
-                    </div>
                     <button class="btn btn-primary" id="add_lec" name="add_class">Save Class</button>
                 </form>
             </div>

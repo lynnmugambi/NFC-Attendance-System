@@ -15,6 +15,7 @@ if (isset($_POST['submit'])) {
     $count_t = $m->check_table($class_id);
 
     if ($count_t == 0) {
+        $m->debug_to_console("not exists");
         foreach ($_POST["TPNo"] as $key => $value) {
             $status = $_POST["status"][$key];
             $tp_num = $_POST["TPNo"][$key];
@@ -29,6 +30,7 @@ if (isset($_POST['submit'])) {
         $m->phpAlert("Records saved successfully! Redirecting you to main page...", "../class.php");
     } else {
         foreach ($_POST["TPNo"] as $key => $value) {
+            $m->debug_to_console("exists");
             $status = $_POST["status"][$key];
             $tp_num = $_POST["TPNo"][$key];
             $m->debug_to_console($tp_num);
